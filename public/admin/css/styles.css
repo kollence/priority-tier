@@ -4540,7 +4540,7 @@ textarea.form-control-lg {
   list-style: none;
 }
 
-.page-link, .datatable-pagination a {
+/* .page-link, .datatable-pagination a {
   position: relative;
   display: block;
   padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
@@ -4550,8 +4550,8 @@ textarea.form-control-lg {
   background-color: var(--bs-pagination-bg);
   border: var(--bs-pagination-border-width) solid var(--bs-pagination-border-color);
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-@media (prefers-reduced-motion: reduce) {
+} */
+/* @media (prefers-reduced-motion: reduce) {
   .page-link, .datatable-pagination a {
     transition: none;
   }
@@ -4592,7 +4592,7 @@ textarea.form-control-lg {
 .page-item:last-child .page-link, .page-item:last-child .datatable-pagination a, .datatable-pagination .page-item:last-child a, .datatable-pagination li:last-child .page-link, .datatable-pagination li:last-child a {
   border-top-right-radius: var(--bs-pagination-border-radius);
   border-bottom-right-radius: var(--bs-pagination-border-radius);
-}
+} */
 
 .pagination-lg {
   --bs-pagination-padding-x: 1.5rem;
