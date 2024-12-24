@@ -59,9 +59,13 @@ class User extends Authenticatable
     /**
      * Check if user has a specific permission
      */
-    public function hasPermission(string $permission): bool
+    public function hasPermission(array|string $permissions): bool
     {
-        return $this->permissions->contains('name', $permission);
+        if (is_array($permissions)) {
+            return $this->permissions->whereIn('name', $permissions)->isNotEmpty();
+        }
+
+        return $this->permissions->contains('name', $permissions);
     }
 
     /**
