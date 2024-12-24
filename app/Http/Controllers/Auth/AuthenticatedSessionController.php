@@ -28,6 +28,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = auth()->user();
+        if ($user->hasPermission(['user-management','user-admin'])) {
+            return redirect()->intended(route('users.index', absolute: false));
+        }
+        if ($user->hasPermission(['import-orders','import-products','import-customers'])) {
+            return redirect()->intended(route('data-import.index', absolute: false));
+            
+        }
+        // Fallback for users without specific permissions
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
