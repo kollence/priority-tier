@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ImportAudit extends Model
 {
     protected $fillable = [
-        'import_id',
+        'data_import_id',
         'row_number',
         'column_name',
         'old_value',

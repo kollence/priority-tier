@@ -9,7 +9,7 @@ class DataImport extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'filename', 'status'];
+    protected $fillable = ['type', 'filename', 'status', 'filepath'];
 
     public function logs()
     {
