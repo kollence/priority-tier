@@ -1,12 +1,15 @@
 <?php
 
+use App\Helpers\GenerateDummyFiles;
+use App\Http\Controllers\DataImportController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\PermissionMiddleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/generate-dummy-files', function () {
+Route::get('/generate-dummy-files', function () {
    // Generate dummy files with data for file types .xlsx and .csv
     return GenerateDummyFiles::generateFiles();
 });
@@ -324,24 +327,40 @@ Route::get('/test-1', function () {
     $juicer->simulate(100); // Simulate the operation of the Juicer for 100 actions
      
 });
-// Route::get('/dashboard', function () {
-//     return view('pages.dashboard');
-// })->name('dashboard');
+Route::middleware('auth')->group(function () {
+        // Profile routes available to all authenticated users
+    Route::get('/dashboard', function(Request $request) {
+        $user = $request->user();
+        return view('dashboard', ['user' => $user]);
+    })->name('dashboard');
+    // Redirect from home based on permissions
+    Route::get('/', function (Request $request) {
+        $user = $request->user();
+        $redirectRoutes = [
+            'user-management' => 'users.index',
+            'user-admin' => 'users.index',
+            'import-orders' => 'data-import.index',
+            'import-products' => 'data-import.index',
+            'import-customers' => 'data-import.index',
+        ];
 
-// Route::middleware('auth')->group(function () {
-    
+        foreach ($redirectRoutes as $permission => $route) {
+            if ($user->hasPermission($permission)) {
+                return redirect()->route($route);
+            }
+        }
+
+        return redirect()->route('dashboard');
+    })->name('home');
+    // Profile routes available to all authenticated users
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // User Management routes (protected by user-management permission)
-    // Route::middleware([PermissionMiddleware::class])->group(function () {
-        // Users CRUD
+    // User Management routes
+    Route::middleware(PermissionMiddleware::class.':user-management,user-admin')->group(function () {
         Route::resource('users', UserController::class);
         
-        // Permissions CRUD
         Route::prefix('permissions')->controller(PermissionController::class)->group(function () {
-            // Basic CRUD routes
             Route::get('/', 'index')->name('permissions.index');
             Route::get('/create', 'create')->name('permissions.create');
             Route::post('/', 'store')->name('permissions.store');
@@ -349,31 +368,31 @@ Route::get('/test-1', function () {
             Route::get('/{permission}/edit', 'edit')->name('permissions.edit');
             Route::put('/{permission}', 'update')->name('permissions.update');
             Route::delete('/{permission}', 'destroy')->name('permissions.destroy');
-            // User assignment routes
             Route::get('/assign/form', 'assignForm')->name('permissions.assignForm');
             Route::post('/user-permissions', 'userPermissions')->name('permissions.userPermissions');
             Route::post('/assign', 'assign')->name('permissions.assign');
-            // Show users with specific permission
             Route::get('/{permission}/users', 'showUsers')->name('permissions.showUsers');
         });
-        
-        // User Permission Management
+
         Route::post('users/{user}/permissions', [UserController::class, 'updatePermissions'])
             ->name('users.permissions.update');
         Route::get('users/{user}/permissions', [UserController::class, 'editPermissions'])
             ->name('users.permissions.edit');
-    // });
+    });
 
-    // // Data Import routes
-    // Route::prefix('data-import')->group(function () {
-    //     Route::get('/', [DataImportController::class, 'index'])->name('data-import.index');
-    //     Route::post('/upload', [DataImportController::class, 'upload'])->name('data-import.upload');
-    //     Route::get('/preview', [DataImportController::class, 'preview'])->name('data-import.preview');
-    //     Route::post('/process', [DataImportController::class, 'process'])->name('data-import.process');
-    // });
-// });
+    // Data Import routes
+    Route::middleware(PermissionMiddleware::class.':import-orders,import-products,import-customers')->prefix('data-import')->group(function () {
+        Route::get('/search', [DataImportController::class, 'search'])->name('data-import.search');
 
+        Route::get('/', [DataImportController::class, 'index'])->name('data-import.index');
+        Route::post('/upload', [DataImportController::class, 'upload'])->name('data-import.upload');
+        Route::get('/{type}/{file}', [DataImportController::class, 'show'])->name('data-import.show');
+        Route::get('/{type}/export', [DataImportController::class, 'export'])->name('data-import.export');
+        // Route::delete('/{type}/{id}', [DataImportController::class, 'destroy'])->name('data-import.destroy');
+        Route::get('/{type}/{id}/audits', [DataImportController::class, 'audits'])->name('data-import.audits');
+        Route::get('/imports', [DataImportController::class, 'imports'])->name('imports.index');
+        Route::get('/imports/{id}/logs', [DataImportController::class, 'logs'])->name('imports.logs');
+    });
+});
 require __DIR__.'/auth.php';
 // require __DIR__.'/admin.php';
-
-
