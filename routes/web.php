@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
    // Generate dummy files with data for file types .xlsx and .csv
     return GenerateDummyFiles::generateFiles();
 });
+
 Route::get('/test-1', function () {
     /**
      The goal of the task is primarily to demonstrate a good understanding of OOP principles.
