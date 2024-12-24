@@ -49,14 +49,14 @@
                 @csrf
                 <!-- Email Address -->
                 <div class="form-floating mb-3">
-                    <input class="form-control" id="inputEmail" type="email" value="{{old('email')}}" required autofocus autocomplete="username" />
+                    <input class="form-control" id="inputEmail" type="email" name="email" />
                     <label for="inputEmail">{{__('Email')}}</label>
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger" />
                 </div>
                 <div class="form-floating mb-3">
-                    <input class="form-control" id="inputPassword" type="password" required autocomplete="current-password" />
+                    <input class="form-control" id="inputPassword" type="password"  name="password" />
                     <label for="inputPassword">{{__('Password')}}</label>
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                    <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger" />
                 </div>
                 <div class="form-check mb-3">
                     <input class="form-check-input" id="remember_me" type="checkbox" name="remember" />
