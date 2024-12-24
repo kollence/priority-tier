@@ -27,9 +27,16 @@
                         <label for="import_type" class="form-label">Import Type</label>
                         <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
                             <option value="">Select import type...</option>
-                            @foreach($importTypes as $key => $type)
+                            <!-- @foreach($importTypes as $key => $type)
                                 @can($type['permission_required'])
                                     <option value="{{ $key }}">{{ $type['label'] }}</option>
+                                @endcan
+                            @endforeach -->
+                            @foreach($importTypes as $key1 => $type)
+                                @can($type['permission_required'])
+                                    @foreach($type['files'] as $key2 => $file)
+                                    <option value="{{ $key1 }}-{{ $key2 }}">{{$type['label']}} {{$file['label']}}</option>
+                                    @endforeach
                                 @endcan
                             @endforeach
                         </select>
@@ -130,12 +137,16 @@ $(document).ready(function() {
 
     $('#import_type').change(function() {
         const type = $(this).val();
+        const [importType, fileType] = type.split('-');
+        // console.log(importType, fileType);
+        
         const configInfo = $('#configInfo');
         const headersList = configInfo.find('.required-headers');
         
-        if (type && importTypes[type]) {
+                
+        if (importType && importTypes[importType]) {
             headersList.empty();
-            const headers = importTypes[type].files.file1.headers_to_db;
+            const headers = importTypes[importType].files[fileType].headers_to_db;
             
             Object.entries(headers).forEach(([key, config]) => {
                 const hasRequired = Array.isArray(config.validation) 
