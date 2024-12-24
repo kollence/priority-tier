@@ -100,8 +100,8 @@ return [
                         'type' => 'string',
                         'validation' => [ 'required' ]
                     ],
-                    'term_of_use' => [
-                        'label' => 'Term of Use',
+                    'description' => [
+                        'label' => 'Description',
                         'type' => 'string',
                         'validation' => [ 'required' ]
                     ],
@@ -150,7 +150,7 @@ return [
                     'address' => [
                         'label' => 'Address',
                         'type' => 'string',
-                        'validation' => [ 'required' ]
+                        'validation' => [ 'nullable' ]
                     ],
                 ],
                 'update_or_create' => [ 'email' ]
