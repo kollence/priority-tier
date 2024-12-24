@@ -22,7 +22,7 @@ class UserPermissionSeeder extends Seeder
         $userManagementPermission = Permission::where('name', 'user-management')->first();
 
         // Get data import permission
-        $dataImportPermission = Permission::where('name', 'data-import')->first();
+        $dataImportPermission = Permission::where('name', 'import-orders')->first();
 
         // Assign all permissions to admin
         $admin = User::where('email', 'admin@mail.com')->first();
@@ -32,15 +32,15 @@ class UserPermissionSeeder extends Seeder
         $manager = User::where('email', 'manager@mail.com')->first();
         $manager->permissions()->sync([
             $userManagementPermission->id,
-            Permission::where('name', 'view-reports')->first()->id,
-            Permission::where('name', 'data-export')->first()->id,
+            Permission::where('name', 'import-orders')->first()->id,
+            Permission::where('name', 'import-customers')->first()->id,
         ]);
 
         // Assign basic permission to regular user
         $user = User::where('email', 'user@mail.com')->first();
         $user->permissions()->sync([
             $dataImportPermission->id,
-            Permission::where('name', 'view-reports')->first()->id,
+            Permission::where('name', 'import-products')->first()->id,
         ]);
 
         // Randomly assign permissions to other users

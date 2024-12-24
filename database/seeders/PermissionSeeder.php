@@ -19,25 +19,21 @@ class PermissionSeeder extends Seeder
                 'description' => 'Manage users and their permissions'
             ],
             [
-                'name' => 'data-import',
-                'description' => 'Import data from files'
-            ],
-            [
-                'name' => 'view-reports',
-                'description' => 'View system reports'
-            ],
-            [
-                'name' => 'manage-content',
-                'description' => 'Manage system content'
-            ],
-            [
-                'name' => 'data-export',
-                'description' => 'Export data from system'
-            ],
-            [
                 'name' => 'user-admin',
                 'description' => 'All permissions granted to admin users'
-            ]
+            ],
+            [
+                'name' => 'import-orders',
+                'description' => 'Import orders data'
+            ],
+            [
+                'name' => 'import-products',
+                'description' => 'Import products data'
+            ],
+            [
+                'name' => 'import-customers',
+                'description' => 'Import customers data'
+            ],
         ];
 
         foreach ($permissions as $permission) {
