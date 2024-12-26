@@ -27,11 +27,6 @@
                         <label for="import_type" class="form-label">Import Type</label>
                         <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
                             <option value="">Select import type...</option>
-                            <!-- @foreach($importTypes as $key => $type)
-                                @can($type['permission_required'])
-                                    <option value="{{ $key }}">{{ $type['label'] }}</option>
-                                @endcan
-                            @endforeach -->
                             @foreach($importTypes as $key1 => $type)
                                 @can($type['permission_required'])
                                     @foreach($type['files'] as $key2 => $file)
@@ -67,14 +62,14 @@
                 </div>
             </div>
 
-            <!-- <div class="mb-3">
+            <div class="mb-3">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="headerRow" name="header_row" checked>
                     <label class="form-check-label" for="headerRow">
                         File contains header row
                     </label>
                 </div>
-            </div> -->
+            </div>
 
             <div class="d-flex justify-content-between align-items-center">
                 <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -132,6 +127,12 @@
 
 @push('scripts')
 <script>
+// ■ The workflow should look like this:
+// ■ User comes to the page, he is presented with a dropdown of only the import types he has a
+// permission for
+// ■ He then picks what he wants to import from the Import Orders dropdown, and based on what he
+// selects, the "Required Headers" for that import type should be shown below the file input like in
+// the picture
 $(document).ready(function() {
     const importTypes = @json($importTypes);
 
@@ -163,42 +164,33 @@ $(document).ready(function() {
         }
     });
 
-    // $('#importForm').on('submit', function(e) {
-    //     e.preventDefault();
-    //     const formData = new FormData(this);
-    //     let pars = [];
-    //     for (let pair of formData.entries()) {
-    //         // console.log(pair[0], pair[1]);
-    //         pars.push(pair[0], pair[1]);
-    //     }
-    //     console.log(pars);
+    $('#importForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
         
-        
-    //     $('#submitBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
-    //     $('#errorAlert, #successAlert').addClass('d-none');
+        $('#submitBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+        $('#errorAlert, #successAlert').addClass('d-none');
 
-
-    //     $.ajax({
-    //         url: $(this).attr('action'),
-    //         type: 'POST',
-    //         data: pars,
-    //         processData: false,
-    //         contentType: false,
-    //         success: function(response) {
-    //             $('#successAlert').removeClass('d-none').text('Import started successfully');
-    //             $('#importForm')[0].reset();
-    //         },
-    //         error: function(xhr) {
-    //             console.log(xhr.responseJSON);
-                
-    //             const message = xhr.responseJSON?.message || 'An error occurred';
-    //             $('#errorAlert').removeClass('d-none').text(message);
-    //         },
-    //         complete: function() {
-    //             $('#submitBtn').prop('disabled', false).text('Import Data');
-    //         }
-    //     });
-    // });
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // ■ Display a notification to the user that the import is in progress and will be notified when it is complete.
+                $('#successAlert').removeClass('d-none').text('Import started successfully');
+                $('#importForm')[0].reset();
+            },
+            error: function(xhr) {
+                const message = xhr.responseJSON?.errors || 'An error occurred';
+                $('#errorAlert').removeClass('d-none').text(message);
+            },
+            complete: function() {
+                $('#submitBtn').prop('disabled', false).html('<i class="fas fa-upload me-2"></i>Import');
+            }
+        });
+    });
 });
 </script>
 @endpush
