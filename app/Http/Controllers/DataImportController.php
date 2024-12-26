@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DataExport;
 use App\Models\DataImport;
+use App\Models\ImportAudit;
+use App\Models\ImportLog;
 use App\Services\DataImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -19,6 +22,13 @@ class DataImportController extends Controller
         return view('data-import.index', compact('importTypes'));
     }
 
+    /**
+     *   ■ User then selects a xlsx or csv file, and clicks on import
+     *   ■ The backend should then check if the user has permissions to import this import type. Check if the
+     *   file extensions are correct. Check if the required headers are present in each file. If any of these
+     *   are false, then redirect back to the import form and inform the user about what the issue is.
+     *   ■ If the import type contains multiple files, at least one is required.
+     */
     public function upload(Request $request)
     {
 
@@ -32,12 +42,47 @@ class DataImportController extends Controller
         }
 
         try {
+            $typeAndFile = explode('-', $request->import_type);
+            $type = $typeAndFile[0];
+            $fileType = $typeAndFile[1];
+
+            // Check user permissions
+            if (!auth()->user()->can("import-$type")) {
+                return redirect()->route('data-import.index')
+                    ->with('error', "You don't have permission to import $type data.");
+            }
+
+            // Get import configuration
+            $config = config("import_types.{$type}");
+            if (!$config) {
+                return redirect()->route('data-import.index')
+                    ->with('error', 'Invalid import type.');
+            }
+
             foreach ($request->file('file') as $file) {
-                // Store the file in the 'uploads' directory
+                // Validate file extension
+                $extension = $file->getClientOriginalExtension();
+                if (!in_array($extension, ['xlsx', 'csv'])) {
+                    return response()->json(['errors' => 'Invalid file format. Only XLSX and CSV files are allowed.'], 422);
+                }
+
+                // Load spreadsheet and validate headers
+                $spreadsheet = IOFactory::load($file->getPathname());
+                $rows = $spreadsheet->getActiveSheet()->toArray();
+                $headers = array_shift($rows);
+                
+                // Check required headers
+                $requiredHeaders = $config['files'][$fileType]['headers_to_db'];
+                $missingHeaders = array_diff(array_keys($requiredHeaders), $headers);
+                
+                if (!empty($missingHeaders)) {
+                    // return redirect()->route('data-import.index')
+                    //     ->with('error', 'Missing required headers: ' . implode(', ', $missingHeaders));
+                    return response()->json(['errors' => 'Missing required headers: ' . implode(', ', $missingHeaders)], 422);
+                }
+
+                // Store the file and create import record
                 $filePath = $file->store('uploads');
-                $typeAndFile = explode('-', $request->import_type);
-                $type = $typeAndFile[0];
-                $fileType = $typeAndFile[1];
                 $import = DataImport::create([
                     'type' => $type,
                     'filename' => $fileType,
@@ -45,34 +90,24 @@ class DataImportController extends Controller
                     'status' => 'processing'
                 ]);
 
-                $spreadsheet = IOFactory::load($file->getPathname());
-                $rows = $spreadsheet->getActiveSheet()->toArray();
-                // dd($rows);
-                $headers = array_shift($rows);
-                // dd($headers);
-
+                // Process the rows
                 $importService = new DataImportService();
-                $config = config("import_types.{$type}");
-                // dd($config);
-                // Loop through each file in the config
                 foreach ($config['files'] as $fileKey => $fileConfig) {
                     $headersToDb = array_merge(['type' => $type], $fileConfig);
-                    // dd($headersToDb);
                     foreach ($rows as $index => $row) {
-                        // Combine headers with data in the row
                         $data = array_combine($headers, $row);
-
-                        // Pass the correct `headers_to_db` config to the processRow method
                         $importService->processRow($import->id, $index + 2, $data, $headersToDb);
                     }
                 }
-                // dd($fo);
+
                 $import->update(['status' => 'completed']);
             }
 
-            return redirect()->route('data-import.index')->with('success', 'File uploaded successfully');
+            return response()->json(['success' => 'File uploaded successfully']);
+
         } catch (\Exception $e) {
-            return redirect()->route('data-import.index')->with('error', $e->getMessage());
+            $import->update(['status' => 'failed']);
+            return response()->json(['errors' => $e->getMessage()], 422);
         }
     }
 
@@ -104,7 +139,7 @@ class DataImportController extends Controller
         }
 
         $data = $query->get();
-        return Excel::download(new DataExport($data), "$type.xlsx");
+        return DataExport::downloadExcel($data, "$type.xlsx");
     }
 
     public function audits($type, $id)
@@ -117,7 +152,7 @@ class DataImportController extends Controller
 
     public function imports()
     {
-        $imports = Import::with('user')->paginate(10);
+        $imports = DataImport::with('user')->paginate(10);
         return view('imports.index', compact('imports'));
     }
 
