@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\ImportError;
 use Illuminate\Database\Eloquent\Model;
 
 class ImportLog extends Model
@@ -15,10 +14,4 @@ class ImportLog extends Model
         'validation_message'
     ];
 
-    protected static function booted() 
-    { 
-        static::created(function ($importLog) { 
-            event(new ImportError($importLog)); 
-        }); 
-    }
 }
