@@ -22,9 +22,7 @@ class SendImportErrorNotification
      * Handle the event.
      */
     public function handle(ImportError $event) { 
-        $importLog = $event->importLog; 
-        Mail::send('emails.import_error', ['importLog' => $importLog], function ($message) { 
-            $message->to('admin@mail.com') ->subject('New Import Error'); 
-        });
+        $importLog = $event->importLog;
+        Mail::to(auth()->user()->email)->send(new ImportErrorMail($importLog));
     }
 }
