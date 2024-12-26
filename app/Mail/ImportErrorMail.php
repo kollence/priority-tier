@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\ImportLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,18 +14,15 @@ class ImportErrorMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $ImportLog;
-    public $error;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($ImportLog)
-    {
-        $this->ImportLog = $ImportLog;
-    }
+    public function __construct(
+        public ImportLog $ImportLog,
+    )
+    {}
 
     /**
      * Get the message envelope.
@@ -42,10 +40,7 @@ class ImportErrorMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.import_error',
-            with: [
-                'ImportLog' => $this->ImportLog,
-            ]
+            markdown: 'emails.import_error',
         );
     }
 
