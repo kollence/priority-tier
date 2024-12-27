@@ -387,7 +387,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DataImportController::class, 'index'])->name('data-import.index');
         Route::post('/upload', [DataImportController::class, 'upload'])->name('data-import.upload');
         Route::get('/{type}/{file}', [DataImportController::class, 'show'])->name('data-import.show');
-        Route::get('/{type}/export', [DataImportController::class, 'export'])->name('data-import.export');
+        Route::get('/{type}/{file}/export', [DataImportController::class, 'export'])->name('data-import.export');
         // Route::delete('/{type}/{id}', [DataImportController::class, 'destroy'])->name('data-import.destroy');
         Route::get('/{type}/{id}/audits', [DataImportController::class, 'audits'])->name('data-import.audits');
         Route::get('/imports', [DataImportController::class, 'imports'])->name('imports.index');
