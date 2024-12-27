@@ -82,6 +82,7 @@ class DataImportController extends Controller
                 // Store the file and create import record
                 $filePath = $file->store('uploads');
                 $import = DataImport::create([
+                    'user_id' => auth()->id(),
                     'type' => $type,
                     'filename' => $fileType,
                     'filepath' => $filePath,
@@ -141,13 +142,13 @@ class DataImportController extends Controller
 
     public function imports()
     {
-        $imports = DataImport::with('user')->paginate(10);
+        $imports = DataImport::where('user_id', auth()->user()->id)->paginate(10);
         return view('imports.index', compact('imports'));
     }
 
     public function logs($id)
     {
-        $logs = ImportLog::where('import_id', $id)->get();
+        $logs = ImportLog::where('data_import_id', $id)->get();
         return response()->json($logs);
     }
 }
