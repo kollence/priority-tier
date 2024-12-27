@@ -1,66 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Note
+I have left the text from task 2 as comments in the files to make it easily searchable.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+To locate the relevant logic, press Ctrl + Shift + F in VS Code and enter text from task 2. This will help you find which files contain the corresponding logic.
 
-## About Laravel
+Comments from task 2 are not included for the User Management section and the last part, Imports.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The task was challenging for me. I initially thought I could complete it in two days, but I encountered unexpected delays due to strange bugs with Events, issues with sending emails, and difficulties setting up notifications.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Install
+Run the following commands:
+composer install
+npm install
+For the mailer, Mailtrap was used.
+Run migrations and seed the database:
+php artisan migrate:fresh --seed
+Start the queue worker:
+php artisan queue:work
+Test routes:
+Open /generate-dummy-files in the browser to create dummy .xlsx and .csv files for testing.
+Open /test-1 in the browser to test task 1.
+Results will be displayed, and the entire logic for task 1 can be found in web.php under Route::get('task-1'), along with its associated classes and logic.
+Configuration files for import types are located in config/import_types.
+Login
+Admin:
+Email: admin@mail.com
+Password: password
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Manager:
+Email: manager@mail.com
+Password: password
 
-## Learning Laravel
+User (restricted access):
+Email: user@mail.com
+Password: password
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Cannot access User Management.
+Notes on File Importing
+Importing a file triggers a background job, but proper notifications are not yet implemented.
+Mismatched headers will prevent file uploads.
+Users without appropriate permissions cannot upload files.
+Dynamic options for the select dropdown and sidebar are derived from config/import_types.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Formatting of Config
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+(Maybe you wanted):
+```php
+return [['orders' => ['files'] => ['file1', 'file2', 'file3']]];
+```
+(And not like this):
+```php
+return [['orders'], ['products'], ['customers']];
+```
+So my iteration trough data is not satisfied  
 
-## Laravel Sponsors
+## Basics
+Admin and Manager Permissions:
+Admin and Manager roles can manage users and roles, granting them access to all features.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Routes and Actions:
+Access to routes and actions is restricted based on permissions.
 
-### Premium Partners
+Data Import:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+The Data Import page only accepts files in the correct format with valid headers for storing or updating data in the database.
+If validation fails:
+An entry is made in the ImportLogs table.
+If data updates occur:
+Changes are recorded in the ImportAudit table, including old and new values.
+If any ImportLogs are created during the process, an email will be sent to admin@mail.com (currently hardcoded).
+There are issues with using auth()->user()->email, as it always returns null.
+File Processing:
 
-## Contributing
+File processing is handled in the background by the ProcessDataImport job class.
+Notifications are incomplete due to bugs encountered in bootstrap.js.
+```js
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+```
+### Imported Data
+Accessible Routes:
+Display a list of all routes accessible to users.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Search Terms:
 
-## Code of Conduct
+Search terms on the page are parameters defined in config/import_types.
+Searches are conducted based on header parameters specific to the type and file.
+Export Button:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The export button is partially implemented and currently non-functional.
+Action Buttons:
 
-## Security Vulnerabilities
+Action buttons are not yet working.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Imports
+List of Data Imports:
+Display all data imports with the ability to:
+Search across all field types related to Data Import.
+Open a modal to view logs if any were generated during the import process.
