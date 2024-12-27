@@ -90,18 +90,25 @@
 </div>
 @push('scripts')
 <script>
-    function showLogs(importId) {
+    $(document).ready(function() {
+        $('#searchBtn').click(function() {
+            var query = $('#search').val();
+            var currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('search', query);
+            window.location.href = currentUrl.toString();
+        });
+        function showLogs(importId) {
         const url = "{{ route('imports.logs', ':id') }}";
         const urlpars = url.replace(':id', importId);
         $.ajax({
             url: urlpars,
             type: 'GET',
             success: function(logs) {
-            const tbody = $('#logsTable tbody');
-            tbody.empty();
+                const tbody = $('#logsTable tbody');
+                tbody.empty();
 
-            logs.forEach(log => {
-                tbody.append(`
+                logs.forEach(log => {
+                    tbody.append(`
                     <tr>
                         <td>${log.row_number}</td>
                         <td>${log.column_name}</td>
@@ -109,12 +116,13 @@
                         <td>${log.validation_message}</td>
                     </tr>
                 `);
-            });
+                });
 
-            $('#logsModal').modal('show');
+                $('#logsModal').modal('show');
             }
         });
     }
+    });
 </script>
 @endpush
 
