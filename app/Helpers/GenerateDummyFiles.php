@@ -9,6 +9,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class GenerateDummyFiles
 {
+    /**
+     * ■ Dummy file for the orders import is in the attachment. Create 2 more different import types, with different headers and file sizes. One of those import types should accept two files that are completely different and import them into two different database tables
+     */
     public static function generateFiles()
     {
         $config = Config::get('import_types');
