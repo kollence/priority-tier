@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\DataImport;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -14,14 +15,15 @@ class ImportError
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $importLog;
+    public $dataImport;
     /**
      * Create a new event instance.
      */
-    public function __construct($importLog)
+    public function __construct(DataImport $dataImport)
     {
-        $this->importLog = $importLog;
+        $this->dataImport = $dataImport;
     }
+    
 
     /**
      * Get the channels the event should broadcast on.
