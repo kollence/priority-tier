@@ -62,15 +62,6 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="headerRow" name="header_row" checked>
-                    <label class="form-check-label" for="headerRow">
-                        File contains header row
-                    </label>
-                </div>
-            </div>
-
             <div class="d-flex justify-content-between align-items-center">
                 <button type="submit" class="btn btn-primary" id="submitBtn">
                     <i class="fas fa-upload me-2"></i>Import
@@ -179,7 +170,7 @@ $(document).ready(function() {
             contentType: false,
             success: function(response) {
                 // ■ Display a notification to the user that the import is in progress and will be notified when it is complete.
-                $('#successAlert').removeClass('d-none').text('Import started successfully');
+                $('#successAlert').removeClass('d-none').text(response.success);
                 $('#importForm')[0].reset();
             },
             error: function(xhr) {
