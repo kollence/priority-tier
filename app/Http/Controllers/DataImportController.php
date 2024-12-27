@@ -134,9 +134,21 @@ class DataImportController extends Controller
         return response()->json($audits);
     }
 
-    public function imports()
+    public function imports(Request $request)
     {
-        $imports = DataImport::where('user_id', auth()->user()->id)->paginate(10);
+        $query = DataImport::where('user_id', auth()->user()->id);
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereDate('created_at', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('type', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('filename', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('status', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+        $imports = $query->paginate(10);
+        
+        
         return view('imports.index', compact('imports'));
     }
 
