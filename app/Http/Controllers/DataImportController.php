@@ -101,34 +101,28 @@ class DataImportController extends Controller
         }
     }
 
-    public function show($type, $file)
+    public function show($type, $file, Request $request)
     {
         $importType = config("import_types.$type");
         $headers = $importType['files'][$file]['headers_to_db'];
+        $searchParamsArray = $importType['files'][$file]['headers_to_db'];
+        $query = DB::table($type);
 
-        $data = DB::table($type)->paginate(10);
-
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchParamsArray, $searchTerm) {
+                foreach (array_keys($searchParamsArray) as $field) {
+                    $q->orWhere($field, 'LIKE', "%{$searchTerm}%");
+                }
+            });
+        }
+        $data = $query->paginate(10);
         return view('data-import.show', compact('type', 'importType', 'headers', 'data', 'file'));
     }
 
-    public function export($type, $file, Request $request)
+    public function export($type, $file)
     {
-        $query = DB::table($type);
-        $importType = config("import_types.$type");
-        $searchParamsArray = $importType['files'][$file]['headers_to_db'];
-
-        if ($request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-            $q->where('sku', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%")
-              ->orWhere('cost', 'like', "%{$search}%")
-              ->orWhere('price', 'like', "%{$search}%")
-              ->orWhere('stock', 'like', "%{$search}%");
-            });
-        }
-
-        $data = $query->get();
+        $data = DB::table($type)->get()->toArray();
         return DataExport::downloadExcel($data, "$type.xlsx");
     }
 
