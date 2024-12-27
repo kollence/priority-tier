@@ -14,15 +14,16 @@ class ImportErrorMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $importLogs;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(
-        public ImportLog $ImportLog,
-    )
-    {}
+    public function __construct($importLogs)
+    {
+        $this->importLogs = $importLogs;
+    }
 
     /**
      * Get the message envelope.
