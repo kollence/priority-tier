@@ -24,7 +24,9 @@
                     <input type="search" class="form-control" id="search" placeholder="Search...">
                     <button class="btn btn-primary" id="searchBtn">Filter</button>
                 </div>
-                <a href="{{ route('data-import.export', [$type, $file]) }}" class="btn btn-success">Export</a>
+                <a href="{{ route('data-import.export', ['type' => $type, 'file' => $file]) }}" class="btn btn-success">
+                    <i class="fas fa-file-excel me-2"></i>Export to Excel
+                </a>
             </div>
             <div class="card-body">
                 <table class="table">
@@ -113,19 +115,9 @@
 $(document).ready(function() {
     $('#searchBtn').click(function() {
         var query = $('#search').val();
-        $.ajax({
-            url: '{{ route("data-import.search") }}',
-            type: 'GET',
-            data: { query: query },
-            success: function(response) {
-                // Handle the response here
-                console.log(response);
-            },
-            error: function(xhr) {
-                // Handle error here
-                console.error(xhr);
-            }
-        });
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('search', query);
+        window.location.href = currentUrl.toString();
     });
 });
 </script>
