@@ -9,7 +9,7 @@ class DataImport extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['type', 'filename', 'status', 'filepath'];
+    protected $fillable = [ 'user_id', 'type', 'filename', 'status', 'filepath'];
 
     public function logs()
     {
@@ -19,5 +19,10 @@ class DataImport extends Model
     public function audits()
     {
         return $this->hasMany(ImportAudit::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

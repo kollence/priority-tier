@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('data_imports', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->string('type');
             $table->string('filename');
             $table->string('status');
