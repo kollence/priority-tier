@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DataExport;
+use App\Jobs\ProcessDataImport;
 use App\Models\DataImport;
 use App\Models\ImportAudit;
 use App\Models\ImportLog;
@@ -55,8 +56,7 @@ class DataImportController extends Controller
             // Get import configuration
             $config = config("import_types.{$type}");
             if (!$config) {
-                return redirect()->route('data-import.index')
-                    ->with('error', 'Invalid import type.');
+                return response()->json(['errors' => 'Invalid import type.'], 422);
             }
 
             foreach ($request->file('file') as $file) {
@@ -76,8 +76,6 @@ class DataImportController extends Controller
                 $missingHeaders = array_diff(array_keys($requiredHeaders), $headers);
                 
                 if (!empty($missingHeaders)) {
-                    // return redirect()->route('data-import.index')
-                    //     ->with('error', 'Missing required headers: ' . implode(', ', $missingHeaders));
                     return response()->json(['errors' => 'Missing required headers: ' . implode(', ', $missingHeaders)], 422);
                 }
 
@@ -89,22 +87,13 @@ class DataImportController extends Controller
                     'filepath' => $filePath,
                     'status' => 'processing'
                 ]);
-
-                // Process the rows
-                $importService = new DataImportService();
-                foreach ($config['files'] as $fileKey => $fileConfig) {
-                    $headersToDb = array_merge(['type' => $type], $fileConfig);
-                    foreach ($rows as $index => $row) {
-                        $data = array_combine($headers, $row);
-                        $importService->processRow($import->id, $index + 2, $data, $headersToDb);
-                    }
-                }
-
-                $import->update(['status' => 'completed']);
+                /**
+                 * ■ The import itself should be executed in the background as a background process via queues and jobs.
+                 */
+                // Dispatch the job
+                ProcessDataImport::dispatch($import->id);
             }
-
-            return response()->json(['success' => 'File uploaded successfully']);
-
+            return response()->json(['success' => 'File started upload!']);
         } catch (\Exception $e) {
             $import->update(['status' => 'failed']);
             return response()->json(['errors' => $e->getMessage()], 422);
