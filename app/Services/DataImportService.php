@@ -38,7 +38,7 @@ class DataImportService
                     'validation_message' => $validator->errors()->first($column)
                 ]);
             }
-            return false;
+            // return false;
         }
 
         return $this->updateOrCreateRecord($importId, $rowNumber, $data, $config);
@@ -123,7 +123,7 @@ class DataImportService
             }
 
             DB::commit();
-            return true;
+            // return true;
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -134,7 +134,7 @@ class DataImportService
                 'invalid_value' => json_encode($data),
                 'validation_message' => preg_replace('/\(.*$/', '', $e->getMessage()) // Shorten the error message
             ]);
-            return false;
+            // return false;
         }
     }
 }
