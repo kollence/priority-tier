@@ -28,6 +28,7 @@
             </a>
             <div class="collapse" id="importedData" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                 <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                <!-- ■ If a user doesn't have permissions to import any import types, this tab should not be visible to that user. -->
                 @foreach($importTypes as $key1 => $type)
                     @can($type['permission_required'])
                         @foreach($type['files'] as $key2 => $file)
