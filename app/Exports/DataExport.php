@@ -30,6 +30,10 @@ class DataExport
         $sheet = $spreadsheet->getActiveSheet();
         
         // Add headers
+        
+        $data = array_map(function ($item) {
+            return (array)$item;
+        }, $data);
         $headers = array_keys($data[0]);
         $column = 1;
         foreach ($headers as $header) {
